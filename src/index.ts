@@ -61,6 +61,29 @@ export interface SafeUrlOptions {
       return false;
     }
 
+    // Also check for URL-encoded path traversal (%2e = ".", %2f = "/")
+    // Decode recursively to catch double, triple, etc. encoding attacks
+    // e.g., %252e%252e -> %2e%2e -> ..
+    try {
+      let decoded = url;
+      let prev = '';
+      const maxIterations = 10; // Prevent infinite loops on malformed input
+      let iterations = 0;
+      
+      while (decoded !== prev && iterations < maxIterations) {
+        prev = decoded;
+        decoded = decodeURIComponent(decoded);
+        iterations++;
+        
+        if (traversalPattern.test(decoded)) {
+          return false;
+        }
+      }
+    } catch {
+      // If decoding fails, the URL may be malformed - block it
+      return false;
+    }
+
     // 3. Protocol validation
     // Check if URL starts with an allowed protocol (e.g., "http://" or "https://")
     const urlLower = url.toLowerCase();
