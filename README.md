@@ -31,8 +31,6 @@ isSafeUrl('/api/data');                      // true (relative URL)
 Drop-in replacement for `fetch` with URL validation:
 
 ```typescript
-import { safeFetch } from 'safeurl';
-
 // Safe - works normally
 const response = await safeFetch('https://api.example.com/users');
 
