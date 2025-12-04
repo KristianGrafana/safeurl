@@ -1,6 +1,6 @@
 {
   "name": "@safelib/safeurl",
-  "version": "1.0.3",
+  "version": "1.0.0",
   "description": "Client-side URL validator and fetch wrapper to prevent path traversal and CRLF injection.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
