@@ -1,17 +1,17 @@
-# safeurl
+# @safelib/safeurl
 
 Client-side URL validation to prevent path traversal, CRLF injection, and dangerous protocols.
 
 ## Installation
 
 ```bash
-npm install safeurl
+npm install @safelib/safeurl
 ```
 
 ## Usage
 
 ```typescript
-import { isSafeUrl, safeFetch } from 'safeurl';
+import { isSafeUrl, safeFetch } from '@safelib/safeurl';
 ```
 
 ### isSafeUrl
