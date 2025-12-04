@@ -1,0 +1,25 @@
+{
+  "name": "safeurl",
+  "version": "1.0.0",
+  "description": "Client-side URL validator and fetch wrapper to prevent path traversal and CRLF injection.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "ts-node test/test.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "security",
+    "url",
+    "path-traversal",
+    "fetch",
+    "validation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  }
+}
