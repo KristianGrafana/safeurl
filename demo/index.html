@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeURL Sandbox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --border: #1e1e2e;
+      --text: #e4e4e7;
+      --text-muted: #71717a;
+      --accent: #22d3ee;
+      --danger: #f43f5e;
+      --success: #10b981;
+      --warning: #f59e0b;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(ellipse at top, rgba(34, 211, 238, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(244, 63, 94, 0.05) 0%, transparent 50%);
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 60px 24px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .input-group {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px;
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      transition: border-color 0.2s;
+    }
+
+    .input-group:focus-within {
+      border-color: var(--accent);
+    }
+
+    input[type="text"] {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 16px;
+      font-size: 1rem;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: var(--text-muted);
+    }
+
+    button {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .result {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      display: none;
+    }
+
+    .result.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .result-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .result-icon.safe {
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    .result-icon.unsafe {
+      background: rgba(244, 63, 94, 0.15);
+    }
+
+    .result-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .result-title.safe { color: var(--success); }
+    .result-title.unsafe { color: var(--danger); }
+
+    .result-details {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+    }
+
+    .result-details code {
+      color: var(--accent);
+    }
+
+    .checks {
+      margin-top: 16px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .check-item:last-child {
+      border-bottom: none;
+    }
+
+    .check-status {
+      font-size: 16px;
+    }
+
+    .examples {
+      margin-top: 48px;
+    }
+
+    .examples h2 {
+      font-size: 1.2rem;
+      margin-bottom: 16px;
+      color: var(--text-muted);
+    }
+
+    .example-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .example-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 8px;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .example-btn:hover {
+      border-color: var(--accent);
+      background: rgba(34, 211, 238, 0.05);
+    }
+
+    .example-btn.safe::before {
+      content: "✓ ";
+      color: var(--success);
+    }
+
+    .example-btn.unsafe::before {
+      content: "✗ ";
+      color: var(--danger);
+    }
+
+    .npm-badge {
+      display: inline-block;
+      margin-top: 32px;
+      padding: 12px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .npm-badge code {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>@safelib/safeurl</h1>
+      <p class="subtitle">Test URL validation against path traversal, XSS protocols, and encoding attacks</p>
+    </header>
+
+    <div class="input-group">
+      <input type="text" id="urlInput" placeholder="Enter a URL to test..." autocomplete="off">
+      <button onclick="testUrl()">Check</button>
+    </div>
+
+    <div class="result" id="result">
+      <div class="result-header">
+        <div class="result-icon" id="resultIcon"></div>
+        <span class="result-title" id="resultTitle"></span>
+      </div>
+      <div class="result-details">
+        <code id="testedUrl"></code>
+      </div>
+      <div class="checks" id="checks"></div>
+    </div>
+
+    <div class="examples">
+      <h2>Try these examples</h2>
+      <div class="example-grid">
+        <button class="example-btn safe" onclick="tryExample('https://example.com/api/users')">https://example.com/api/users</button>
+        <button class="example-btn safe" onclick="tryExample('/api/data')">Relative: /api/data</button>
+        <button class="example-btn unsafe" onclick="tryExample('https://example.com/../secret')">Path traversal: /../secret</button>
+        <button class="example-btn unsafe" onclick="tryExample('https://example.com/%2e%2e/secret')">Encoded: %2e%2e (..)</button>
+        <button class="example-btn unsafe" onclick="tryExample('https://example.com/%252e%252e/secret')">Double encoded: %252e%252e</button>
+        <button class="example-btn unsafe" onclick="tryExample('javascript:alert(1)')">javascript: protocol</button>
+        <button class="example-btn unsafe" onclick="tryExample('data:text/html,&lt;script&gt;alert(1)&lt;/script&gt;')">data: protocol</button>
+        <button class="example-btn unsafe" onclick="tryExample('https://example.com/api\r\nX-Injected: header')">CRLF injection</button>
+      </div>
+    </div>
+
+    <div style="text-align: center;">
+      <div class="npm-badge">
+        npm install <code>@safelib/safeurl</code>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Inline implementation of isSafeUrl for the demo
+    function isSafeUrl(url, options = {}) {
+      const { allowRelative = true, allowedProtocols = ['http', 'https'] } = options;
+      const checks = [];
+
+      if (!url || typeof url !== 'string') {
+        return { safe: false, checks: [{ name: 'Valid input', passed: false }] };
+      }
+
+      // Check for control characters
+      const controlCharsPattern = /[\r\n\t]/;
+      const hasControlChars = controlCharsPattern.test(url);
+      checks.push({ name: 'No control characters (\\r\\n\\t)', passed: !hasControlChars });
+      
+      if (hasControlChars) {
+        return { safe: false, checks };
+      }
+
+      // Check for path traversal
+      const traversalPattern = /(^|\/)\.\.(\/|$)/;
+      const hasTraversal = traversalPattern.test(url);
+      checks.push({ name: 'No path traversal (..)', passed: !hasTraversal });
+
+      if (hasTraversal) {
+        return { safe: false, checks };
+      }
+
+      // Check for encoded path traversal
+      let hasEncodedTraversal = false;
+      try {
+        let decoded = url;
+        let prev = '';
+        let iterations = 0;
+        
+        while (decoded !== prev && iterations < 10) {
+          prev = decoded;
+          decoded = decodeURIComponent(decoded);
+          iterations++;
+          
+          if (traversalPattern.test(decoded) && decoded !== url) {
+            hasEncodedTraversal = true;
+            break;
+          }
+        }
+      } catch {
+        hasEncodedTraversal = true;
+      }
+      checks.push({ name: 'No encoded traversal (%2e%2e)', passed: !hasEncodedTraversal });
+
+      if (hasEncodedTraversal) {
+        return { safe: false, checks };
+      }
+
+      // Protocol validation
+      const urlLower = url.toLowerCase();
+      const hasAllowedProtocol = allowedProtocols.some(
+        protocol => urlLower.startsWith(`${protocol.toLowerCase()}://`)
+      );
+
+      if (hasAllowedProtocol) {
+        checks.push({ name: 'Allowed protocol (http/https)', passed: true });
+        return { safe: true, checks };
+      }
+
+      const colonIndex = url.indexOf(':');
+      const slashIndex = url.indexOf('/');
+      const hasProtocol = colonIndex !== -1 && (slashIndex === -1 || colonIndex < slashIndex);
+      
+      if (hasProtocol) {
+        checks.push({ name: 'Allowed protocol (http/https)', passed: false, detail: 'Dangerous protocol detected' });
+        return { safe: false, checks };
+      }
+
+      checks.push({ name: 'Relative URL allowed', passed: allowRelative });
+      return { safe: allowRelative, checks };
+    }
+
+    function testUrl() {
+      const input = document.getElementById('urlInput');
+      const url = input.value.trim();
+      
+      if (!url) return;
+
+      const { safe, checks } = isSafeUrl(url);
+      
+      const result = document.getElementById('result');
+      const icon = document.getElementById('resultIcon');
+      const title = document.getElementById('resultTitle');
+      const testedUrl = document.getElementById('testedUrl');
+      const checksEl = document.getElementById('checks');
+
+      result.classList.add('show');
+      
+      icon.className = 'result-icon ' + (safe ? 'safe' : 'unsafe');
+      icon.textContent = safe ? '✓' : '✗';
+      
+      title.className = 'result-title ' + (safe ? 'safe' : 'unsafe');
+      title.textContent = safe ? 'Safe URL' : 'Unsafe URL';
+      
+      testedUrl.textContent = url;
+      
+      checksEl.innerHTML = checks.map(check => `
+        <div class="check-item">
+          <span class="check-status">${check.passed ? '✅' : '❌'}</span>
+          <span>${check.name}</span>
+        </div>
+      `).join('');
+    }
+
+    function tryExample(url) {
+      document.getElementById('urlInput').value = url;
+      testUrl();
+    }
+
+    // Allow Enter key to submit
+    document.getElementById('urlInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') testUrl();
+    });
+  </script>
+</body>
+</html>
+
+

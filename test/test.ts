@@ -47,6 +47,11 @@ const tests = [
   { url: "https://example.com/api/%2e./secret", expected: false, desc: "Mixed: one encoded dot, one plain" },
   { url: "/%252e%252e/etc/passwd", expected: false, desc: "Double encoded relative path traversal" },
 
+  // --- Backslash Traversal (Windows-style) ---
+  { url: "https://example.com/api/..\\secret", expected: false, desc: "Backslash traversal" },
+  { url: "https://example.com/api/..%5csecret", expected: false, desc: "Encoded backslash traversal" },
+  { url: "..\\Windows\\System32", expected: false, desc: "Relative backslash traversal" },
+
   // --- Protocol Validation (Dangerous Protocols - Should Fail) ---
   { url: "javascript:alert('XSS')", expected: false, desc: "javascript: protocol (XSS)" },
   { url: "JAVASCRIPT:alert('XSS')", expected: false, desc: "JAVASCRIPT: protocol (case insensitive)" },

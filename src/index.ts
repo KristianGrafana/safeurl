@@ -43,8 +43,12 @@ export interface SafeUrlOptions {
     if (controlCharsPattern.test(url)) {
       return false;
     }
+
+    // 2. Normalize backslashes to forward slashes for traversal checks
+    // Windows paths or some servers might treat \ as /
+    const normalizedUrl = url.replace(/\\/g, '/');
   
-    // 2. Check for Path Traversal ("..")
+    // 3. Check for Path Traversal ("..")
     // We look for ".." segments. A segment is defined as:
     // - Starts with ".." and ends (relative path)
     // - Starts with ".." and follows with "/" (../abc)
@@ -57,7 +61,7 @@ export interface SafeUrlOptions {
     // (\/|$)  -> Match a forward slash OR end of string
     const traversalPattern = /(^|\/)\.\.(\/|$)/;
     
-    if (traversalPattern.test(url)) {
+    if (traversalPattern.test(normalizedUrl)) {
       return false;
     }
 
@@ -75,7 +79,8 @@ export interface SafeUrlOptions {
         decoded = decodeURIComponent(decoded);
         iterations++;
         
-        if (traversalPattern.test(decoded)) {
+        // Check both original decoded string AND normalized version (backslashes)
+        if (traversalPattern.test(decoded) || traversalPattern.test(decoded.replace(/\\/g, '/'))) {
           return false;
         }
       }
